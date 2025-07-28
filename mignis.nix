@@ -1,6 +1,6 @@
-{ config, pkgs, mignis-pkg }:
+{ config, pkgs, lib, ... }:
 
-with pkgs.lib;
+with lib;
 
 let
   cfg = config.services.mignis;
@@ -91,7 +91,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ mignis-pkg ];
+    environment.systemPackages = [ pkgs.mignis ];
 
     systemd.services.mignis-firewall = {
       description = "Mignis Firewall";
@@ -105,7 +105,8 @@ in
 
       script = ''
         echo "Applying Mignis firewall rules..."
-        ${mignis-pkg}/bin/mignis -c ${mignisConf} -e --force
+
+        ${pkgs.mignis}/bin/mignis -c ${mignisConf} -e --force
       '';
     };
   };

@@ -38,20 +38,6 @@
 
             default = mignis;
           };
-
-          nixosModules = rec {
-            mignis = import ./mignis.nix {
-              mignis-pkg = self.packages.mignis;
-            };
-
-            default = mignis;
-          };
-
-          nixosModule = {
-            mignis = import ./mignis.nix {
-              mignis-pkg = self.packages.mignis;
-            };
-          };
         })
     // {
       overlays.default = final: prev: {

@@ -7,49 +7,60 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
+    flake-utils.lib.eachDefaultSystem
+      (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
 
-        packages = rec {
-          mignis = pkgs.python3Packages.buildPythonApplication {
-            pname = "mignis";
-            version = "0.9.5";
+          packages = rec {
+            mignis = pkgs.python3Packages.buildPythonApplication {
+              pname = "mignis";
+              version = "0.9.5";
 
-            src = ./.;
+              src = ./.;
 
-            propagatedBuildInputs = [ pkgs.python3Packages.ipaddr ];
+              propagatedBuildInputs = [ pkgs.python3Packages.ipaddr ];
 
-            installPhase = ''
-              mkdir -p $out/bin
-              cp mignis.py $out/bin/mignis
-              chmod +x $out/bin/mignis
-            '';
+              installPhase = ''
+                mkdir -p $out/bin
+                cp mignis.py $out/bin/mignis
+                chmod +x $out/bin/mignis
+              '';
 
-            meta = with pkgs.lib; {
-              description = "A semantic based tool for firewall configuration";
-              homepage = "https://github.com/secgroup/Mignis";
-              license = licenses.mit;
+              meta = with pkgs.lib; {
+                description = "A semantic based tool for firewall configuration";
+                homepage = "https://github.com/secgroup/Mignis";
+                license = licenses.mit;
+              };
+            };
+
+            default = mignis;
+          };
+
+          nixosModules = rec {
+            mignis = import ./mignis.nix {
+              mignis-pkg = self.packages.mignis;
+            };
+
+            default = mignis;
+          };
+
+          nixosModule = {
+            mignis = import ./mignis.nix {
+              mignis-pkg = self.packages.mignis;
             };
           };
+        })
+    // {
+      overlays.default = final: prev: {
+        mignis = self.packages.${prev.system}.mignis;
+      };
 
-          default = mignis;
-        };
-
-        nixosModules = rec {
-          mignis = import ./mignis.nix {
-            mignis-pkg = self.packages.mignis;
-          };
-
-          default = mignis;
-        };
-
-        nixosModule = {
-          mignis = import ./mignis.nix {
-            mignis-pkg = self.packages.mignis;
-          };
-        };
-      });
+      nixosModules = rec {
+        mignis = import ./mignis.nix;
+        default = mignis;
+      };
+    };
 }

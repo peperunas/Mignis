@@ -35,18 +35,20 @@
             };
           };
 
-          nixosModules = {
-            mignis = import ./mignis.nix {
-              mignis-pkg = mignis;
-            };
+          default = mignis;
+        };
 
-            default = mignis;
+        nixosModules = rec {
+          mignis = import ./mignis.nix {
+            mignis-pkg = self.packages.mignis;
           };
 
-          nixosModule = {
-            mignis = import ./mignis.nix {
-              mignis-pkg = mignis;
-            };
+          default = mignis;
+        };
+
+        nixosModule = {
+          mignis = import ./mignis.nix {
+            mignis-pkg = self.packages.mignis;
           };
         };
       });
